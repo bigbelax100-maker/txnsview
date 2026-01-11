@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TXNs Only</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+<style>
+body { background:#0b0f14; color:#eaeaea; font-family:Arial; }
+table { width:100%; border-collapse:collapse; }
+td { padding:8px; border-bottom:1px solid #1f2933; }
+.buy { color:#22c55e; }
+.sell { color:#ef4444; }
+</style>
+</head>
+<body>
+<table id="txns"></table>
+
+<script>
+const pair="0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae";
+const provider=new ethers.providers.WebSocketProvider("wss://bsc-ws-node.nariox.org:443");
+const abi=["event Swap(address indexed sender,uint amount0In,uint amount1In,uint amount0Out,uint amount1Out,address indexed to)"];
+const contract=new ethers.Contract(pair,abi,provider);
+
+contract.on("Swap",(s,a0i,a1i,a0o,a1o,to)=>{
+ const side=a0i.gt(0)||a1o.gt(0)?"SELL":"BUY";
+ const row=document.createElement("tr");
+ row.innerHTML=`<td class="${side==="BUY"?"buy":"sell"}">${side}</td><td>$USD</td><td>${to.slice(0,6)}...</td>`;
+ document.getElementById("txns").prepend(row);
+});
+</script>
+</body>
+</html>
